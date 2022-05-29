@@ -1,0 +1,3 @@
+PREFIX=$PWD/toolchain
+TARGET=i686-elf
+PATH="$PREFIX/bin:$PATH"
