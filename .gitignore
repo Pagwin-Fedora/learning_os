@@ -54,3 +54,7 @@ dkms.conf
 # ignore toolchain
 toolchain
 build
+
+# ignore the final iso
+*.iso
+*.img
