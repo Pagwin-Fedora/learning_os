@@ -3,10 +3,12 @@ JOB_COUNT = 2
 KERNEL = learning_kernel.elf
 OS_IMG = os.iso
 
-check_multiboot: $(KERNEL)
-	grub-file --is-x86-multiboot $(KERNEL)
 run: $(OS_IMG)
 	qemu-system-i386 -boot c $(OS_IMG)
+run-debug: $(OS_IMG) check_multiboot
+	qemu-system-i386 -boot c -s -S $(OS_IMG)
+check_multiboot: $(KERNEL)
+	grub-file --is-x86-multiboot $(KERNEL)
 $(OS_IMG): $(KERNEL) $(SELF_DIR)isoroot/boot/grub/grub.cfg
 	cp $(KERNEL) $(SELF_DIR)isoroot/boot
 	grub-mkrescue isoroot -o $(OS_IMG)

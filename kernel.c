@@ -85,10 +85,19 @@ void term_print(const char* str)
 		term_putc(str[i]);
 }
  
- 
- 
+void term_hex_disp(long val){
+    char store[16];
+    const char* lookup_table = "0123456789abcdef";
+    term_print("0x");
+    int i = 0;
+    for(int curr = val & 0xf; val != 0; val >>= 4, curr = val & 0xf,i++){
+	store[i] = lookup_table[curr];
+    }
+    for(int k = i-1;k>=0;k--)term_putc(store[k]);
+    term_putc('\n');
+}
 // This is our kernel's main function
-void kernel_main()
+void kernel_main(long multiboot_val, void* boot_info)
 {
 	// We're here! Let's initiate the terminal and display a message to show we got here.
  
@@ -98,4 +107,8 @@ void kernel_main()
 	// Display some messages
 	term_print("Hello, World!\n");
 	term_print("Welcome to the kernel.\n");
+	term_hex_disp(0xfe);
+	term_hex_disp(multiboot_val);
+	term_hex_disp(boot_info);
+	while(1);
 }

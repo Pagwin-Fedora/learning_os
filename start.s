@@ -39,6 +39,9 @@
  
 		// Now we have a C-worthy (haha!) environment ready to run the rest of our kernel.
 		// At this point, we can call our main C function.
+		// push eax and ebx so the kernel has access to the bootloader info and knows it's running multiboot
+		push %ebx
+		push %eax
 		call kernel_main
  
 		// If, by some mysterious circumstances, the kernel's C code ever returns, all we want to do is to hang the CPU
