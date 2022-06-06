@@ -14,12 +14,9 @@ SECTIONS
 	/* The Multiboot header is Read-Only data, so we can put it in a '.rodata' section. */
 	.rodata BLOCK(4K) : ALIGN(4K)
 	{
+		/*multiboot header*/
 		*(.multiboot)
-	}
- 
-	/* Executable code */
-	.text BLOCK(4K) : ALIGN(4K)
-	{
+		/*executable code*/
 		*(.text)
 	}
  

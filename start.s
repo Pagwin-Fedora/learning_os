@@ -5,10 +5,10 @@
 .global start
 
 /// grub magic
-.set MB_MAGIC, 0x1BADB002          // This is a 'magic' constant that GRUB will use to detect our kernel's location.
-.set MB_FLAGS, (1 << 0) | (1 << 1) // This tells GRUB to 1: load modules on page boundaries and 2: provide a memory map (this is useful later in development)
+.set MB_MAGIC , 0x1badb002          // This is a 'magic' constant that GRUB will use to detect our kernel's location.
+.set MB_FLAGS , (1 << 0) | (1 << 1) // This tells GRUB to 1: load modules on page boundaries and 2: provide a memory map (this is useful later in development)
 // Finally, we calculate a checksum that includes all the previous values
-.set MB_CHECKSUM, (0 - (MB_MAGIC + MB_FLAGS))
+.set MB_CHECKSUM , (0 - (MB_MAGIC + MB_FLAGS))
 
 ///multiboot header
 .section .multiboot
