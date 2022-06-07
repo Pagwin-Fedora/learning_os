@@ -5,11 +5,15 @@
 .global start
 
 /// grub magic
-.set MB_MAGIC , 0x1badb002          // This is a 'magic' constant that GRUB will use to detect our kernel's location.
-.set MB_FLAGS , (1 << 0) | (1 << 1) // This tells GRUB to 1: load modules on page boundaries and 2: provide a memory map (this is useful later in development)
+.set MB_MAGIC, 0x1badb002          // This is a 'magic' constant that GRUB will use to detect our kernel's location.
+.set MB_FLAGS,  (1 << 0) | (1 << 1) | (1 << 2) // This tells GRUB to 1: load modules on page boundaries and 2: provide a memory map (this is useful later in development)
 // Finally, we calculate a checksum that includes all the previous values
-.set MB_CHECKSUM , (0 - (MB_MAGIC + MB_FLAGS))
-
+.set MB_CHECKSUM, (0 - (MB_MAGIC + MB_FLAGS))
+//https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Header-graphics-fields
+.set MODE_TYPE, 1
+.set WIDTH, 0
+.set HEIGHT, 0
+.set DEPTH, 0
 ///multiboot header
 .section .multiboot
 	.align 4 // Make sure the following data is aligned on a multiple of 4 bytes
@@ -18,6 +22,8 @@
 	.long MB_FLAGS
 	// Use the checksum we calculated earlier
 	.long MB_CHECKSUM
+	// skip the kernel location stuff because we don't need to specify that
+	.skip 24
 
 /// putting a bunch of zeroes here so we have space for a stack that C can use
 .section .bss

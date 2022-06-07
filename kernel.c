@@ -2,7 +2,6 @@
 // They give us access to useful things like fixed-width types
 #include <stddef.h>
 #include <stdint.h>
- 
 // First, let's do some basic checks to make sure we are using our x86-elf cross-compiler correctly
 #if defined(__linux__)
 	#error "This code must be compiled with a cross-compiler"
@@ -10,6 +9,8 @@
 	#error "This code must be compiled with an x86-elf compiler"
 #endif
  
+void scroll(uint8_t num);
+
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location
 volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
@@ -73,11 +74,18 @@ void term_putc(char c)
 	// What happens if we get past the last row? We need to reset both column and row to 0 in order to loop back to the top of the screen
 	if (term_row >= VGA_ROWS)
 	{
-		term_col = 0;
+		scroll(1);
 		term_row = 0;
 	}
 }
- 
+void memcpy(char* dest, char* src, size_t size){
+    for(int i = 0;i<size;i++){
+	dest[i] = src[i];
+    }
+}
+void scroll(uint8_t num){
+    for(int i = 0;i<80-num;i++) memcpy(vga_buffer+i, vga_buffer+num+i, VGA_COLS*2);
+}
 // This function prints an entire string onto the screen
 void term_print(const char* str)
 {
@@ -93,11 +101,27 @@ void term_hex_disp(long val){
     for(int curr = val & 0xf; val != 0; val >>= 4, curr = val & 0xf,i++){
 	store[i] = lookup_table[curr];
     }
+    if(i==0) term_putc('0');
     for(int k = i-1;k>=0;k--)term_putc(store[k]);
     term_putc('\n');
 }
+void term_bin_disp(long val){
+    term_print("0b");
+    unsigned long inv = 0;
+    for(int i = 0;i<32;i++){
+	inv |= val & 1;
+	val >>= 1;
+	inv <<= 1;
+    }
+    for(int i = 0;i<32;i++){
+	if(inv & 1) term_putc('1');
+	else term_putc('0');
+	inv >>= 1;
+    }
+    term_putc('\n');
+}
 // This is our kernel's main function
-void kernel_main(long multiboot_val, void* boot_info)
+void kernel_main(long multiboot_val, long* boot_info)
 {
 	// We're here! Let's initiate the terminal and display a message to show we got here.
  
@@ -110,5 +134,17 @@ void kernel_main(long multiboot_val, void* boot_info)
 	term_hex_disp(0xfe);
 	term_hex_disp(multiboot_val);
 	term_hex_disp(boot_info);
-	while(1);
+	//https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot-information-format
+	int flags = boot_info[0];
+	int mem_lower = boot_info[1];
+	int mem_upper = boot_info[2];
+	int boot_device = boot_info[3];
+	term_bin_disp(flags);
+	term_hex_disp(mem_lower);
+	term_hex_disp(mem_upper);
+	//term_hex_disp(boot_device);
+	while(1)for(int i = 0;i<27;i++){
+	    term_putc('a'+i);
+	    term_putc('\n');
+	}
 }
