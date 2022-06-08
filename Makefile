@@ -12,10 +12,12 @@ check_multiboot: $(KERNEL)
 $(OS_IMG): $(KERNEL) $(SELF_DIR)isoroot/boot/grub/grub.cfg
 	cp $(KERNEL) $(SELF_DIR)isoroot/boot
 	grub-mkrescue isoroot -o $(OS_IMG)
-$(KERNEL): kernel.o start.o $(SELF_DIR)linker.ld
-	i686-elf-gcc -ffreestanding -nostdlib -g -T linker.ld start.o kernel.o -o $(KERNEL) -lgcc
+$(KERNEL): kernel.o start.o gdt.o $(SELF_DIR)linker.ld
+	i686-elf-gcc -ffreestanding -nostdlib -g -T linker.ld start.o kernel.o gdt.o -o $(KERNEL) -lgcc
 start.o: $(SELF_DIR)start.s
-	i686-elf-gcc -std=gnu99 -ffreestanding -g -c start.s -o start.o
+	i686-elf-gcc -ffreestanding -g -c $(SELF_DIR)start.s -o start.o
+gdt.o: $(SELF_DIR)gdt.s
+	i686-elf-gcc -ffreestanding -g -c $(SELF_DIR)gdt.s -o gdt.o
 kernel.o: $(SELF_DIR)kernel.c
 	i686-elf-gcc -std=gnu99 -ffreestanding -g -c kernel.c -o kernel.o
 gcc-tool: binutils-tool

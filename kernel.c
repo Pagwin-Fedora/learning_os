@@ -10,7 +10,7 @@
 #endif
  
 void scroll(uint8_t num);
-
+extern void setupGdt(void);
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location
 volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
@@ -121,30 +121,25 @@ void term_bin_disp(long val){
     term_putc('\n');
 }
 // This is our kernel's main function
-void kernel_main(long multiboot_val, long* boot_info)
-{
-	// We're here! Let's initiate the terminal and display a message to show we got here.
- 
-	// Initiate terminal
-	term_init();
- 
-	// Display some messages
-	term_print("Hello, World!\n");
-	term_print("Welcome to the kernel.\n");
-	term_hex_disp(0xfe);
-	term_hex_disp(multiboot_val);
-	term_hex_disp(boot_info);
-	//https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot-information-format
-	int flags = boot_info[0];
-	int mem_lower = boot_info[1];
-	int mem_upper = boot_info[2];
-	int boot_device = boot_info[3];
-	term_bin_disp(flags);
-	term_hex_disp(mem_lower);
-	term_hex_disp(mem_upper);
-	//term_hex_disp(boot_device);
-	while(1)for(int i = 0;i<27;i++){
-	    term_putc('a'+i);
-	    term_putc('\n');
-	}
+void kernel_main(long multiboot_val, long* boot_info){
+    __asm("cli");
+    //terminal stuff below
+    term_init();
+
+    // Display some messages
+    term_print("Hello, World!\n");
+    term_print("Welcome to the kernel.\n");
+    term_hex_disp(0xfe);
+    term_hex_disp(multiboot_val);
+    term_hex_disp(boot_info);
+    //get boot info here
+    //https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot-information-format
+    int flags = boot_info[0];
+    int mem_lower = boot_info[1];
+    int mem_upper = boot_info[2];
+    int boot_device = boot_info[3];
+    term_bin_disp(flags);
+    term_hex_disp(mem_lower);
+    term_hex_disp(mem_upper);
+    //term_hex_disp(boot_device);
 }
