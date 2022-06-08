@@ -9,6 +9,7 @@
 	#error "This code must be compiled with an x86-elf compiler"
 #endif
  
+#include "io.h"
 void scroll(uint8_t num);
 extern void setupGdt(void);
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location

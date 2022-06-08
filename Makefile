@@ -13,14 +13,16 @@ check_multiboot: $(KERNEL)
 $(OS_IMG): $(KERNEL) $(SELF_DIR)isoroot/boot/grub/grub.cfg
 	cp $(KERNEL) $(SELF_DIR)isoroot/boot
 	grub-mkrescue $(SELF_DIR)isoroot -o $(OS_IMG)
-$(KERNEL): kernel.o start.o gdt.o $(SELF_DIR)linker.ld
-	i686-elf-gcc -ffreestanding -nostdlib -g -T $(SELF_DIR)linker.ld start.o kernel.o gdt.o -o $(KERNEL) -lgcc
-start.o: $(SRC_DIR)/start.s
-	i686-elf-gcc -ffreestanding -g -c $(SRC_DIR)/start.s -o start.o
-gdt.o: $(SRC_DIR)/gdt.s
-	i686-elf-gcc -ffreestanding -g -c $(SRC_DIR)/gdt.s -o gdt.o
-kernel.o: $(SRC_DIR)/kernel.c
-	i686-elf-gcc -std=gnu99 -ffreestanding -g -c $(SRC_DIR)/kernel.c -o kernel.o
+$(KERNEL): real_kernel.o start.o real_gdt.o $(SELF_DIR)linker.ld
+	i686-elf-gcc -ffreestanding -nostdlib -g -T $(SELF_DIR)linker.ld start.o real_kernel.o real_gdt.o -o $(KERNEL) -lgcc
+start.o: $(SRC_DIR)/real_mode/start.s
+	i686-elf-gcc -ffreestanding -g -c $(SRC_DIR)/real_mode/start.s -o start.o
+real_gdt.o: $(SRC_DIR)/real_mode/gdt.s
+	i686-elf-gcc -ffreestanding -g -c $(SRC_DIR)/real_mode/gdt.s -o real_gdt.o
+real_io.o: $(SRC_DIR)/real_mode/io.c
+	i686-elf-gcc -std=gnu99 -ffreestanding -g -c $(SRC_DIR)/real_mode/io.c -o real_io.o
+real_kernel.o: $(SRC_DIR)/real_mode/kernel.c $(SRC_DIR)/real_mode/io.h
+	i686-elf-gcc -std=gnu99 -ffreestanding -g -c $(SRC_DIR)/real_mode/kernel.c -o real_kernel.o
 gcc-tool: binutils-tool
 	$(SELF_DIR)gcc/configure --target=${TARGET} --prefix="${PREFIX}" --disable-nls --without-headers --enable-languages=c,c++,ada
 	make all-gcc -j$(JOB_COUNT)
