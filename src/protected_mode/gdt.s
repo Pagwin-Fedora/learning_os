@@ -1,7 +1,7 @@
-.global setupGdt
+.global setupGDT
 //make sure the linker puts this with the code
 .section .text
-setupGdt:
+setupGDT:
     lgdt [GDT_REG]
     mov %eax, %cr0
     or  %eax, 0x1

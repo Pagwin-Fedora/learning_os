@@ -25,9 +25,8 @@ uint8_t term_color = 0x0F; // Black background, White foreground
  
 // This is our kernel's main function
 void kernel_main(long multiboot_val, long* boot_info){
-    __asm("cli");
-    setupGdt();
-
+    setupGDT();
+    setupIDT()
     //// going into protected mode may require actually thinking when doing graphics
     //enterProtec();
     //terminal stuff below
