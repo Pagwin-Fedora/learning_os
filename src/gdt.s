@@ -1,13 +1,13 @@
-.global setGdt
+.global setupGdt
 //make sure the linker puts this with the code
-.section text
+.section .text
 setupGdt:
     lgdt [GDT_REG]
     mov %eax, %cr0
     or  %eax, 0x1
     mov %cr0, %eax
     ret
-.section gdt
+.section .gdt
 GDT_START:
 GDT_NULL:
     .quad 0x0
