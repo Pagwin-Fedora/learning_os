@@ -10,8 +10,8 @@
 #endif
  
 #include "io.h"
-void scroll(uint8_t num);
-extern void setupGdt(void);
+#include "kernel.h"
+#include "gdt.h"
 // This is the x86's VGA textmode buffer. To display text, we write data to this memory location
 volatile uint16_t* vga_buffer = (uint16_t*)0xB8000;
 // By default, the VGA textmode buffer has a size of 80x25 characters
@@ -23,6 +23,33 @@ int term_col = 0;
 int term_row = 0;
 uint8_t term_color = 0x0F; // Black background, White foreground
  
+// This is our kernel's main function
+void kernel_main(long multiboot_val, long* boot_info){
+    __asm("cli");
+    setupGdt();
+
+    //// going into protected mode may require actually thinking when doing graphics
+    //enterProtec();
+    //terminal stuff below
+    term_init();
+
+    // Display some messages
+    term_print("Hello, World!\n");
+    term_print("Welcome to the kernel.\n");
+    term_hex_disp(0xfe);
+    term_hex_disp(multiboot_val);
+    term_hex_disp(boot_info);
+    //get boot info here
+    //https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot-information-format
+    int flags = boot_info[0];
+    int mem_lower = boot_info[1];
+    int mem_upper = boot_info[2];
+    int boot_device = boot_info[3];
+    term_bin_disp(flags);
+    term_hex_disp(mem_lower);
+    term_hex_disp(mem_upper);
+    //term_hex_disp(boot_device);
+}
 // This function initiates the terminal by clearing it
 void term_init()
 {
@@ -120,30 +147,4 @@ void term_bin_disp(long val){
 	inv >>= 1;
     }
     term_putc('\n');
-}
-// This is our kernel's main function
-void kernel_main(long multiboot_val, long* boot_info){
-    __asm("cli");
-    setupGdt();
-    //// going into protected mode may require actually thinking when doing graphics
-    //enterProtec();
-    //terminal stuff below
-    term_init();
-
-    // Display some messages
-    term_print("Hello, World!\n");
-    term_print("Welcome to the kernel.\n");
-    term_hex_disp(0xfe);
-    term_hex_disp(multiboot_val);
-    term_hex_disp(boot_info);
-    //get boot info here
-    //https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#Boot-information-format
-    int flags = boot_info[0];
-    int mem_lower = boot_info[1];
-    int mem_upper = boot_info[2];
-    int boot_device = boot_info[3];
-    term_bin_disp(flags);
-    term_hex_disp(mem_lower);
-    term_hex_disp(mem_upper);
-    //term_hex_disp(boot_device);
 }

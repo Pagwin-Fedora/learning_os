@@ -13,4 +13,13 @@ inline void outb(uint16_t port, uint8_t val){
      * Wider immediate constants would be truncated at assemble-time (e.g. "i" constraint).
      * The  outb  %al, %dx  encoding is the only option for all other cases.
      * %1 expands to %dx because  port  is a uint16_t.  %w1 could be used if we had the port number a wider C type */
+} 
+void NMI_enable(void) {
+    outb(0x70, inb(0x70) & 0x7F);
+    inb(0x71);
+}
+ 
+void NMI_disable(void) {
+    outb(0x70, inb(0x70) | 0x80);
+    inb(0x71);
 }
