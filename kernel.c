@@ -84,7 +84,7 @@ void memcpy(char* dest, char* src, size_t size){
     }
 }
 void scroll(uint8_t num){
-    for(int i = 0;i<80-num;i++) memcpy(vga_buffer+i, vga_buffer+num+i, VGA_COLS*2);
+    for(int i = 0;i<80-num;i++) memcpy(vga_buffer+i*VGA_COLS, vga_buffer+(num+i)*VGA_COLS, VGA_COLS*2);
 }
 // This function prints an entire string onto the screen
 void term_print(const char* str)
